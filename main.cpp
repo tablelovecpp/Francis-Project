@@ -15,9 +15,6 @@ SDL_Window *window;     // 窗口
 auto startButton =
     new Button(WIN_WIDTH / 2, WIN_HEIGHT / 2, 50, 50); // 启动按钮
 
-// 强转操作函数
-template <typename T> def toX(T x) { return static_cast<T>(x); }
-
 // 初始化
 def init() {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -42,8 +39,7 @@ def handleEvent() {
         if (startButton->handleEvent(&event) && startButton != NULL) {
             startButton->clearButton();
             return true;
-        }
-        else if (startButton == NULL)
+        } else if (startButton == NULL)
             return false;
     }
     return false;
@@ -91,11 +87,17 @@ def toGame() {
         SDL_DrawCircle(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, circle_r,
                        {0, 0, 0, 255});
 
-                       
         // 画出炮管
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        thickLineRGBA(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, x, y, 3, 0, 0, 0, 255);    
-               
+
+        // 计算角度并控制长度
+        double angle = atan2(y - WIN_HEIGHT / 2, x - WIN_WIDTH / 2);
+        int endX = WIN_WIDTH / 2 + 50 * cos(angle);
+        int endY = WIN_HEIGHT / 2 + 50 * sin(angle);
+
+        thickLineRGBA(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, endX, endY, 3, 0,
+                      0, 0, 255);
+
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderPresent(renderer);
         // SDL_UpdateWindowSurface(window);
