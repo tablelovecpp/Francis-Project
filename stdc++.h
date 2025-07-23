@@ -62,25 +62,27 @@
 #include <utility>
 
 #include "SDL2/SDL.h"
-#include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 
-#include "SDL2/SDL2_imageFilter.h"
-#include "SDL2/SDL2_rotozoom.h"
+#include "SDL2/SDL2_framerate.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
 #include "SDL2/SDL2_gfxPrimitives_font.h"
-#include "SDL2/SDL2_framerate.h"
+#include "SDL2/SDL2_imageFilter.h"
+#include "SDL2/SDL2_rotozoom.h"
 
-
-#include <windows.h>
 #include <conio.h>
+#include <windows.h>
 
-// All Namespaces
+// 使用所有标准库
 using namespace std;
 
+// 适配short变量的SIZE结构体
 struct SSIZE {
     short cx, cy;
 };
+
+// 获取窗口大小
 static SIZE get_window_size() {
     DEVMODE dm;
     EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm);
@@ -89,8 +91,9 @@ static SIZE get_window_size() {
     return {x, y};
 }
 
-static void SDL_DrawCircle(SDL_Renderer *renderer, int x0, int y0, int radius,
-                       SDL_Color color) {
+// 绘制圆
+static auto SDL_DrawCircle(SDL_Renderer *renderer, int x0, int y0, int radius,
+                           SDL_Color color) {
     const int n = 200; // number of triangles used to draw the circle
     SDL_Vertex vertices[n + 1];
     for (int i = 0; i <= n; i++) {
@@ -105,5 +108,20 @@ static void SDL_DrawCircle(SDL_Renderer *renderer, int x0, int y0, int radius,
         indices[3 * i + 1] = i + 1;
         indices[3 * i + 2] = (i + 1) % n + 1;
     }
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderGeometry(renderer, NULL, vertices, n + 1, indices, 3 * n);
 }
+
+// 获取按键
+inline auto KeyDown(char key) {
+    if (key >= 'a' && key <= 'z')
+        key -= 'a' - 'A'; // 转换为大写
+    return GetAsyncKeyState(key) & 0x8000;
+}
+
+// 引用库的操作
+#ifdef USE_MY_LIB
+#define USE inline
+#else
+#define USE
+#endif

@@ -1,6 +1,6 @@
 #define USE_MY_LIB
+#include "ammo.h"
 #include "button.h"
-#include "player.h"
 #include "stdc++.h"
 #include "triangle.h"
 
@@ -24,6 +24,7 @@ def init() {
                               SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     startButton->SetRenderer(renderer);
+    cout << SDL_GetWindowID(window);
 }
 
 // 处理事件
@@ -98,8 +99,20 @@ def toGame() {
         thickLineRGBA(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, endX, endY, 3, 0,
                       0, 0, 255);
 
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        // 画出子弹
+        updateAmmo();
+        drawAmmo();
+
         SDL_RenderPresent(renderer);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        for (auto &ammo : ammo_list) {
+            if (ammo.alive)
+                ammo.update();
+            else
+                ammo_list.erase(
+                    remove(ammo_list.begin(), ammo_list.end(), ammo),
+                    ammo_list.end());
+        }
         // SDL_UpdateWindowSurface(window);
 
         if (handleEvent())
