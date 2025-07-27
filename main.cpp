@@ -10,33 +10,40 @@ using namespace std;
 // 窗口尺寸
 def WIN_WIDTH = get_window_size().cx / 2, WIN_HEIGHT = get_window_size().cy / 2;
 
-SDL_Renderer *renderer; // 渲染器
-SDL_Window *window;     // 窗口
-auto startButton =
-    new Button(WIN_WIDTH / 2, WIN_HEIGHT / 2, 50, 50); // 启动按钮
+SDL_Renderer *renderer;                                              // 渲染器
+SDL_Window *window;                                                  // 窗口
+def startButton = new Button(WIN_WIDTH / 2, WIN_HEIGHT / 2, 50, 50); // 启动按钮
+
+// 发射子弹时的定时器
+// 实例: Uint32 callback (Uint32 interval, void *param);
 
 // 初始化
 def init() {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         SDL_GetError();
     TTF_Init();
+    IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
     window = SDL_CreateWindow("SDL Game", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     startButton->SetRenderer(renderer);
-    cout << SDL_GetWindowID(window);
+    // cout << SDL_GetWindowID(window);
 }
 
 // 处理事件
 def handleEvent() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        // 检测退出事件
         if (event.type == SDL_QUIT) {
             SDL_DestroyRenderer(renderer);
             SDL_DestroyWindow(window);
+            // SDL_RemoveTimer(ammo_timer);
             SDL_Quit();
             exit(0);
         }
+
+        // 处理按钮事件
         if (startButton->handleEvent(&event) && startButton != NULL) {
             startButton->clearButton();
             return true;
@@ -75,7 +82,9 @@ def toStart() {
 
 // 进入游戏后的处理
 def toGame() {
+    // 设置标题
     SDL_SetWindowTitle(window, "版本: 内测版");
+
     while (1) {
         SDL_RenderClear(renderer);
 
@@ -105,15 +114,10 @@ def toGame() {
 
         SDL_RenderPresent(renderer);
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        for (auto &ammo : ammo_list) {
-            if (ammo.alive)
-                ammo.update();
-            else
-                ammo_list.erase(
-                    remove(ammo_list.begin(), ammo_list.end(), ammo),
-                    ammo_list.end());
-        }
         // SDL_UpdateWindowSurface(window);
+
+        // 测试计数器是否生效
+        // cout << 1;
 
         if (handleEvent())
             break;
@@ -122,8 +126,12 @@ def toGame() {
 
 #undef main
 int main() {
+    // 初始化函数
     init();
+    // 进入开始界面
     toStart();
+    // 进入游戏界面
     toGame();
+    // 返回0，表示程序正常结束
     return 0;
 }

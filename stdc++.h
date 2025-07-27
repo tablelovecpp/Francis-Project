@@ -113,7 +113,7 @@ static auto SDL_DrawCircle(SDL_Renderer *renderer, int x0, int y0, int radius,
 }
 
 // 获取按键
-inline auto KeyDown(char key) {
+inline auto KeyDown(short key) {
     if (key >= 'a' && key <= 'z')
         key -= 'a' - 'A'; // 转换为大写
     return GetAsyncKeyState(key) & 0x8000;
