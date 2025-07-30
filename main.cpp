@@ -1,6 +1,7 @@
 #define USE_MY_LIB
 #include "ammo.h"
 #include "button.h"
+#include "camera.h"
 #include "stdc++.h"
 #include "triangle.h"
 
@@ -14,8 +15,30 @@ SDL_Renderer *renderer;                                              // 渲染�
 SDL_Window *window;                                                  // 窗口
 def startButton = new Button(WIN_WIDTH / 2, WIN_HEIGHT / 2, 50, 50); // 启动按钮
 
-// 发射子弹时的定时器
-// 实例: Uint32 callback (Uint32 interval, void *param);
+// 镜头
+Camera camera = Camera_Create(WIN_WIDTH, WIN_HEIGHT);
+
+// 炮台位置
+CameraObject player = {.worldX = (float)WIN_WIDTH / 2,
+                       .worldY = (float)WIN_HEIGHT / 2};
+
+// 玩家移动的计时器
+def player_tick = (Uint32)0;
+
+// 玩家移动
+def playerMove() {
+    if (SDL_GetTicks() - player_tick > 50) {
+        player_tick = SDL_GetTicks();
+        if (KeyDown('W'))
+            player.worldY -= 10;
+        if (KeyDown('S'))
+            player.worldY += 10;
+        if (KeyDown('A'))
+            player.worldX -= 10;
+        if (KeyDown('D'))
+            player.worldX += 10;
+    }
+}
 
 // 初始化
 def init() {
@@ -59,19 +82,6 @@ def toStart() {
         SDL_RenderClear(renderer);
         startButton->render(true);
 
-        // 画出按钮上的三角形(暂封)
-        // def _pos = startButton->getButtonPosition();
-        // def _size = startButton->getButtonSize();
-        // _size.cx -= 20, _size.cy -= 20;
-        // float px = _pos.cx, py = _pos.cy;
-        // SDL_Vertex vertices[3] = {
-        //     {{px - _size.cx / 2, py + _size.cy / 2}, {255, 255, 255, 0}},
-        //     {{px, py - _size.cy / 2}, {255, 255, 255, 0}},
-        //     {{px + _size.cx / 2, py + _size.cy / 2}, {255, 255, 255, 0}}};
-        // def triangle = SDL_Triangle(vertices[0], vertices[1], vertices[2]);
-        // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        // Render_Triangle(renderer, triangle);
-
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderPresent(renderer);
 
@@ -92,22 +102,24 @@ def toGame() {
         int x = 0, y = 0;
         SDL_GetMouseState(&x, &y);
 
+        // 更新炮台的位置
+        playerMove();
+        Camera_LookAt(&camera, &player);
+        def pos = Camera_WorldToScreen(&camera, &player, 0, 0);
+
         // 画出炮台
         int circle_r = 10;
-        SDL_DrawCircle(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, circle_r,
-                       {0, 0, 0, 255});
+        SDL_DrawCircle(renderer, pos.x, pos.y, circle_r, {0, 0, 0, 255});
 
         // 画出炮管
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
         // 计算角度并控制长度
-        double angle = atan2(y - WIN_HEIGHT / 2, x - WIN_WIDTH / 2);
-        int endX = WIN_WIDTH / 2 + 50 * cos(angle);
-        int endY = WIN_HEIGHT / 2 + 50 * sin(angle);
+        double angle = atan2(y - pos.y, x - pos.x);
+        int endX = pos.x + 20 * cos(angle), endY = pos.y + 20 * sin(angle);
 
         thickLineRGBA(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, endX, endY, 3, 0,
                       0, 0, 255);
-
         // 画出子弹
         updateAmmo();
         drawAmmo();
@@ -116,8 +128,9 @@ def toGame() {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         // SDL_UpdateWindowSurface(window);
 
-        // 测试计数器是否生效
+        // 测试区
         // cout << 1;
+        cout << "x: " << player.worldX << " y: " << player.worldY << endl;
 
         if (handleEvent())
             break;
