@@ -1,9 +1,10 @@
 #define USE_MY_LIB
+#include "stdc++.h"
 #include "ammo.h"
 #include "button.h"
 #include "camera.h"
-#include "stdc++.h"
-#include "triangle.h"
+#include "enemy.h"
+// #include "triangle.h"
 
 using namespace std;
 #define def auto
@@ -42,6 +43,7 @@ def playerMove() {
 
 // 初始化
 def init() {
+    // 初始化SDL
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         SDL_GetError();
     TTF_Init();
@@ -51,6 +53,9 @@ def init() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     startButton->SetRenderer(renderer);
     // cout << SDL_GetWindowID(window);
+
+    // 初始化计时器
+    srand((unsigned int)time(NULL));
 }
 
 // 处理事件
@@ -107,30 +112,38 @@ def toGame() {
         Camera_LookAt(&camera, &player);
         def pos = Camera_WorldToScreen(&camera, &player, 0, 0);
 
-        // 画出炮台
-        int circle_r = 10;
-        SDL_DrawCircle(renderer, pos.x, pos.y, circle_r, {0, 0, 0, 255});
-
-        // 画出炮管
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-
-        // 计算角度并控制长度
-        double angle = atan2(y - pos.y, x - pos.x);
-        int endX = pos.x + 20 * cos(angle), endY = pos.y + 20 * sin(angle);
-
-        thickLineRGBA(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, endX, endY, 3, 0,
-                      0, 0, 255);
         // 画出子弹
         updateAmmo();
         drawAmmo();
 
-        SDL_RenderPresent(renderer);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        // SDL_UpdateWindowSurface(window);
+        // 绘制敌人
+        def px = (long)player.worldX, py = (long)player.worldY;
+        SIZE test = {(LONG)pos.x, (LONG)pos.y},
+             test2 = {rand() % 1000, rand() % 1000};
+        updateEnemy(test);
+        createEnemy(100, 0, 5, test2, 5);
+        drawEnemy();
+
+        // 画出炮台
+        int circle_r = 10;
+        SDL_DrawCircle(renderer, pos.x, pos.y, circle_r, {0, 0, 0, 255});
+
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        double angle = atan2(y - pos.y, x - pos.x);
+        int endX = pos.x + 20 * cos(angle), endY = pos.y + 20 * sin(angle);
+        thickLineRGBA(renderer, WIN_WIDTH / 2, WIN_HEIGHT / 2, endX, endY, 3, 0,
+                      0, 0, 255);
 
         // 测试区
-        // cout << 1;
-        cout << "x: " << player.worldX << " y: " << player.worldY << endl;
+        // SDL_UpdateWindowSurface(window);
+        // if (!ENEMY::enemy_list.empty())
+        // for (auto i : ENEMY::enemy_list)
+        //         cout << i.pos.cx << " " << i.pos.cy << '\n';
+        // cout << player.worldX << " " << player.worldY << '\n';
+        // SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), {0, 0});
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderPresent(renderer);
 
         if (handleEvent())
             break;

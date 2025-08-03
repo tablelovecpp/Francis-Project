@@ -1,14 +1,11 @@
 # 文件
 .clang-format
-SDL2_ttf.dll
-SDL2_gfx.dll
-SDL2_image.dll
-trangle.h
+*.dll
+triangle.h
 SDL2-devel-2.30.6-mingw.zip
 
 # 文件夹
-include
-lib
-output
-SDL2-2.30.6
+/include/
+/lib/
+/output/
 AI_TEST

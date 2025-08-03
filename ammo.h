@@ -4,22 +4,23 @@
 #include "stdc++.h"
 
 USE namespace AMMO {
-#define def static auto
+#define DEF static auto
 
     struct Ammo {
         // 变量
         SIZE pos;
-        int speed, attack;
+        int speed, damage;
         bool alive;
         float angle;
 
         // 函数
         Ammo() {}
         Ammo(int x, int y, int speed, int attack, float angle)
-            : pos({x, y}), speed(speed), attack(attack), alive(true) {
+            : pos({x, y}), speed(speed), damage(attack), alive(true) {
             this->angle = angle;
         }
 
+        // 更新子弹
         auto update() {
             auto width = 0, height = 0;
             SDL_GetWindowSize(SDL_GetWindowFromID(1), &width, &height);
@@ -37,18 +38,18 @@ USE namespace AMMO {
 #define CHECK if (!ammo_list.empty())
 
     // 子弹的列表
-    static vector<Ammo> ammo_list;
+    DEF ammo_list = vector<Ammo>();
 
     // 记录开始时间
-    def start_time = SDL_GetTicks(), shoot_time = Uint32(0);
+    DEF start_time = SDL_GetTicks(), shoot_time = Uint32(0);
 
     // 子弹数量上限           射击间隔时间
-    def ammo_max = 10, shoot_delaytTime = 200;
+    DEF ammo_max = 10, shoot_delaytTime = 200;
     // 是否正在射击
-    def is_shooting = false;
+    DEF is_shooting = false;
 
     // 射出子弹
-    def shootAmmo() {
+    DEF shootAmmo() {
         if (KeyDown(VK_LBUTTON)) {
             // 获取窗口大小和鼠标位置
             auto width = 0, height = 0;
@@ -66,7 +67,10 @@ USE namespace AMMO {
     }
 
     // 更新子弹
-    def updateAmmo() {
+    DEF updateAmmo() {
+        // 判断是否触碰敌人，如果是消除子弹和敌人
+
+
         if ((SDL_GetTicks() - shoot_time) >= shoot_delaytTime && shoot_time) {
             is_shooting = false;
             shoot_time = 0;
@@ -89,7 +93,7 @@ USE namespace AMMO {
     }
 
     // 绘制子弹
-    def drawAmmo() {
+    DEF drawAmmo() {
         auto renderer = SDL_GetRenderer(SDL_GetWindowFromID(1));
 
         CHECK
