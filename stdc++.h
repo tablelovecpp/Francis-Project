@@ -119,6 +119,34 @@ inline auto KeyDown(short key) {
     return GetAsyncKeyState(key) & 0x8000;
 }
 
+/**
+ * 检测两个矩形是否发生碰撞
+ *
+ * @param rectA 第一个矩形
+ * @param rectB 第二个矩形
+ * @return 如果矩形碰撞返回1（true），否则返回0（false）
+ */
+static auto checkCollision(SDL_Rect rectA, SDL_Rect rectB) {
+    // 矩形A的右边界
+    int rightA = rectA.x + rectA.w;
+    // 矩形A的下边界
+    int bottomA = rectA.y + rectA.h;
+
+    // 矩形B的右边界
+    int rightB = rectB.x + rectB.w;
+    // 矩形B的下边界
+    int bottomB = rectB.y + rectB.h;
+
+    // 检测碰撞条件
+    // 如果任一条件为真，则没有发生碰撞
+    if (rectA.x >= rightB || rectB.x >= rightA || rectA.y >= bottomB ||
+        rectB.y >= bottomA) {
+        return 0; // 没有碰撞
+    }
+
+    return 1; // 发生碰撞
+}
+
 // 引用库的操作
 #ifdef USE_MY_LIB
 #define USE inline

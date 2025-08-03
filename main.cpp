@@ -1,9 +1,10 @@
 #define USE_MY_LIB
-#include "stdc++.h"
 #include "ammo.h"
 #include "button.h"
 #include "camera.h"
 #include "enemy.h"
+#include "stdc++.h"
+
 // #include "triangle.h"
 
 using namespace std;
@@ -112,6 +113,12 @@ def toGame() {
         Camera_LookAt(&camera, &player);
         def pos = Camera_WorldToScreen(&camera, &player, 0, 0);
 
+        // 碰撞检测
+        if (!ammo_list.empty())
+            for (auto &ammo : ammo_list) 
+                if (checkCollisionAmmo(ammo)) 
+                    ammo.alive = false;
+
         // 画出子弹
         updateAmmo();
         drawAmmo();
@@ -121,7 +128,7 @@ def toGame() {
         SIZE test = {(LONG)pos.x, (LONG)pos.y},
              test2 = {rand() % 1000, rand() % 1000};
         updateEnemy(test);
-        createEnemy(100, 0, 5, test2, 5);
+        createEnemy(100, 0, 5, test2, 10, 5);
         drawEnemy();
 
         // 画出炮台

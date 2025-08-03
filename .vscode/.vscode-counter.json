@@ -1,0 +1,6 @@
+{
+    "include": ["*.gitignore", "*.clang-format", "*.dll", "*.exe", "*.md"], 
+    "exclude": [".vscode", "lib", "SDL2"],   
+    "ignoreWhitespace": true,              
+    "ignoreComments": false                
+}

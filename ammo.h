@@ -9,14 +9,14 @@ USE namespace AMMO {
     struct Ammo {
         // 变量
         SIZE pos;
-        int speed, damage;
+        int speed, damage, size;
         bool alive;
         float angle;
 
         // 函数
         Ammo() {}
-        Ammo(int x, int y, int speed, int attack, float angle)
-            : pos({x, y}), speed(speed), damage(attack), alive(true) {
+        Ammo(int x, int y, int speed, int attack, float angle, int size)
+            : pos({x, y}), speed(speed), damage(attack), alive(true), size(size) {
             this->angle = angle;
         }
 
@@ -59,7 +59,7 @@ USE namespace AMMO {
             SDL_GetMouseState(&x, &y);
 
             auto angle = atan2(y - height / 2, x - width / 2);
-            auto player_ammo = Ammo(width / 2, height / 2, 10, 10, angle);
+            auto player_ammo = Ammo(width / 2, height / 2, 10, 10, angle, 5);
 
             ammo_list.push_back(player_ammo);
             is_shooting = true, shoot_time = SDL_GetTicks();
@@ -68,9 +68,6 @@ USE namespace AMMO {
 
     // 更新子弹
     DEF updateAmmo() {
-        // 判断是否触碰敌人，如果是消除子弹和敌人
-
-
         if ((SDL_GetTicks() - shoot_time) >= shoot_delaytTime && shoot_time) {
             is_shooting = false;
             shoot_time = 0;
