@@ -10,13 +10,16 @@ USE namespace AMMO {
         // 变量
         SIZE pos;
         int speed, damage, size;
+        int worldX, worldY;
         bool alive;
         float angle;
 
         // 函数
         Ammo() {}
-        Ammo(int x, int y, int speed, int attack, float angle, int size)
-            : pos({x, y}), speed(speed), damage(attack), alive(true), size(size) {
+        Ammo(int x, int y, int speed, int attack, float angle, int size,
+             int worldX, int worldY)
+            : pos({x, y}), speed(speed), damage(attack), alive(true),
+              size(size), worldX(worldX), worldY(worldY) {
             this->angle = angle;
         }
 
@@ -26,8 +29,10 @@ USE namespace AMMO {
             SDL_GetWindowSize(SDL_GetWindowFromID(1), &width, &height);
             if (pos.cx < 0 || pos.cx >= width || pos.cy < 0 || pos.cy >= height)
                 alive = false;
-            else
+            else {
                 pos.cx += speed * cos(angle), pos.cy += speed * sin(angle);
+                worldX += speed * cos(angle), worldX += speed * sin(angle);
+            }
         }
 
         auto operator==(const Ammo &other) {
@@ -41,15 +46,15 @@ USE namespace AMMO {
     DEF ammo_list = vector<Ammo>();
 
     // 记录开始时间
-    DEF start_time = SDL_GetTicks(), shoot_time = Uint32(0);
+    static Uint32 start_time = 0, shoot_time = 0;
 
     // 子弹数量上限           射击间隔时间
-    DEF ammo_max = 10, shoot_delaytTime = 200;
+    DEF ammo_max = 10, shoot_delaytTime = 100;
     // 是否正在射击
     DEF is_shooting = false;
 
     // 射出子弹
-    DEF shootAmmo() {
+    DEF shootAmmo(int pX, int pY) {
         if (KeyDown(VK_LBUTTON)) {
             // 获取窗口大小和鼠标位置
             auto width = 0, height = 0;
@@ -59,7 +64,8 @@ USE namespace AMMO {
             SDL_GetMouseState(&x, &y);
 
             auto angle = atan2(y - height / 2, x - width / 2);
-            auto player_ammo = Ammo(width / 2, height / 2, 10, 10, angle, 5);
+            auto player_ammo =
+                Ammo(width / 2, height / 2, 10, 10, angle, 5, pX, pY);
 
             ammo_list.push_back(player_ammo);
             is_shooting = true, shoot_time = SDL_GetTicks();
@@ -67,13 +73,13 @@ USE namespace AMMO {
     }
 
     // 更新子弹
-    DEF updateAmmo() {
+    DEF updateAmmo(int px, int py) {
         if ((SDL_GetTicks() - shoot_time) >= shoot_delaytTime && shoot_time) {
             is_shooting = false;
             shoot_time = 0;
         }
         if (!is_shooting)
-            shootAmmo();
+            shootAmmo(px, py);
         if ((SDL_GetTicks() - start_time) % 10 == 0 &&
             SDL_GetTicks() > start_time) {
             start_time = SDL_GetTicks();
